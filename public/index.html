@@ -3,195 +3,282 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Visconde · Sala Flow</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <title>Distribuidor · Organização de Salas</title>
+  
+  <!-- Bootstrap 5 + Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  
+  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
-
-<header>
-  <div class="logo">
-    <div class="logo-mark">V</div>
-    <span>visconde</span>
-    <span class="badge">flow</span>
-  </div>
-  <div class="status">
-    <span class="dot"></span>
-    <span>online</span>
-  </div>
-</header>
-
-<main>
-  <!-- Hero section -->
-  <div class="hero">
-    <h1>distribuição <span class="gradient">instantânea</span></h1>
-    <p>upload da planilha → alunos embaralhados → salas organizadas</p>
-  </div>
-
-  <div class="grid">
-    <!-- Coluna esquerda - ações principais -->
-    <div class="col">
-      <!-- Card: Download modelo -->
-      <div class="card">
-        <div class="card-header">
-          <i class="fa-regular fa-file-excel"></i>
-          <h3>1. baixar modelo</h3>
-        </div>
-        <p class="desc">Arquivo base com as colunas <strong>NOME, RA, TURMA, ANO</strong>. Preencha e salve.</p>
-        <a href="/api/template" class="btn btn-outline" download="alunos_template.xlsx">
-          <i class="fa-regular fa-download"></i> baixar modelo.xlsx
+<body data-theme="light">
+  <div class="app-wrapper">
+    <!-- Header / Navbar -->
+    <nav class="navbar navbar-expand-lg sticky-top">
+      <div class="container">
+        <a class="navbar-brand" href="#">
+          <div class="brand-icon">D</div>
+          <div class="brand-text">
+            <span class="brand-name">Distribuidor</span>
+            <span class="brand-tag">salas organizadas</span>
+          </div>
         </a>
-      </div>
-
-      <!-- Card: Upload -->
-      <div class="card">
-        <div class="card-header">
-          <i class="fa-regular fa-cloud-arrow-up"></i>
-          <h3>2. enviar planilha</h3>
-        </div>
         
-        <div class="dropzone" id="dropzone">
-          <input type="file" id="fileInput" accept=".xlsx,.xls">
-          <div class="dz-icon">
-            <i class="fa-regular fa-folder-open"></i>
-          </div>
-          <div class="dz-label">arraste ou <strong>clique aqui</strong></div>
-          <div class="dz-name" id="fileName"></div>
-        </div>
-
-        <!-- Barra de progresso -->
-        <div class="progress" id="progress">
-          <div class="progress-bar">
-            <div class="progress-fill" id="progressFill"></div>
-          </div>
-          <div class="progress-label" id="progressLabel">processando...</div>
-        </div>
-
-        <!-- Alerta de erro -->
-        <div class="alert alert-error" id="alertError"></div>
-
-        <div class="action-group">
-          <button class="btn btn-primary" id="btnProcess" disabled>
-            <i class="fa-regular fa-wand-magic"></i> gerar distribuição
-          </button>
-          <button class="btn btn-secondary" id="btnClear" disabled>
-            <i class="fa-regular fa-trash-can"></i> limpar
+        <div class="header-actions">
+          <button class="theme-toggle" id="themeToggle" aria-label="Alternar tema">
+            <i class="bi bi-sun-fill theme-icon-light"></i>
+            <i class="bi bi-moon-fill theme-icon-dark"></i>
           </button>
         </div>
       </div>
+    </nav>
 
-      <!-- Card: Resultado -->
-      <div class="card result-card" id="resultCard" style="display: none;">
-        <div class="card-header">
-          <i class="fa-regular fa-chart-scatter"></i>
-          <h3>3. resultado</h3>
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="container">
+        <!-- Hero Section -->
+        <div class="hero-section">
+          <div class="hero-badge">
+            <i class="bi bi-magic"></i>
+            <span>organização inteligente</span>
+          </div>
+          <h1 class="hero-title">
+            Distribua alunos em<br>
+            <span class="gradient-text">salas de prova</span>
+          </h1>
+          <p class="hero-subtitle">
+            Carregue sua planilha e gere automaticamente a distribuição dos alunos,<br>
+            respeitando anos e vagas disponíveis.
+          </p>
         </div>
-        <div class="result-stats" id="resultStats"></div>
-        <div class="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>sala</th>
-                <th>1º ano</th>
-                <th>2º ano</th>
-                <th>3º ano</th>
-                <th>total</th>
-              </tr>
-            </thead>
-            <tbody id="resultBody"></tbody>
-          </table>
-        </div>
-        <div class="action-group">
-          <button class="btn btn-success" id="btnDownload">
-            <i class="fa-regular fa-download"></i> baixar excel
-          </button>
-          <button class="btn btn-outline" id="btnReset">
-            <i class="fa-regular fa-rotate-right"></i> nova distribuição
-          </button>
+
+        <!-- Main Grid - Altura igual para todas as colunas -->
+        <div class="row g-4 align-items-stretch">
+          <!-- Coluna Esquerda - Upload e Resultados -->
+          <div class="col-lg-7 d-flex flex-column">
+            <!-- Card Upload -->
+            <div class="card flex-grow-1 mb-4">
+              <div class="card-body d-flex flex-column">
+                <div class="card-header-custom">
+                  <i class="bi bi-cloud-arrow-up"></i>
+                  <div>
+                    <h5 class="mb-0">Upload da planilha</h5>
+                    <small>Envie o arquivo .xlsx preenchido</small>
+                  </div>
+                </div>
+
+                <div class="dropzone" id="dropzone">
+                  <input type="file" id="fileInput" accept=".xlsx,.xls">
+                  <div class="dropzone-content" id="dropzoneDefault">
+                    <div class="dropzone-icon">
+                      <i class="bi bi-file-earmark-excel"></i>
+                    </div>
+                    <div class="dropzone-text">
+                      <h6>Arraste seu arquivo aqui</h6>
+                      <p class="text-muted small mb-0">ou clique para selecionar</p>
+                      <span class="dropzone-hint">.xlsx · até 10MB</span>
+                    </div>
+                  </div>
+                  <div class="dropzone-content" id="dropzoneSuccess" style="display: none;">
+                    <div class="dropzone-icon success">
+                      <i class="bi bi-check-circle-fill"></i>
+                    </div>
+                    <div class="dropzone-text">
+                      <h6 id="uploadFileName">arquivo.xlsx</h6>
+                      <p class="text-muted small mb-0">carregado com sucesso</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="action-buttons">
+                  <button class="btn btn-primary" id="btnProcess" disabled>
+                    <i class="bi bi-magic me-2"></i>Processar distribuição
+                  </button>
+                  <button class="btn btn-outline-secondary" id="btnClear" disabled>
+                    <i class="bi bi-trash3 me-2"></i>Limpar
+                  </button>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="progress-wrapper" id="progressWrapper" style="display: none;">
+                  <div class="d-flex justify-content-between small mb-1">
+                    <span id="progressLabel">Processando...</span>
+                    <span id="progressPercent">0%</span>
+                  </div>
+                  <div class="progress" style="height: 4px;">
+                    <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+                  </div>
+                </div>
+
+                <!-- Error Alert -->
+                <div class="alert alert-danger alert-dismissible fade" id="errorAlert" role="alert" style="display: none;">
+                  <i class="bi bi-exclamation-circle me-2"></i>
+                  <span id="errorMessage"></span>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Resultados Card -->
+            <div class="card" id="resultCard" style="display: none;">
+              <div class="card-body">
+                <div class="card-header-custom">
+                  <i class="bi bi-graph-up"></i>
+                  <div>
+                    <h5 class="mb-0">Resultado da distribuição</h5>
+                    <small id="resultSummary">Carregando...</small>
+                  </div>
+                </div>
+
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>Sala</th>
+                        <th>1º Ano</th>
+                        <th>2º Ano</th>
+                        <th>3º Ano</th>
+                        <th>Total</th>
+                      </tr>
+                    </thead>
+                    <tbody id="resultBody"></tbody>
+                  </table>
+                </div>
+
+                <div class="action-buttons mt-3">
+                  <button class="btn btn-success" id="btnDownload">
+                    <i class="bi bi-download me-2"></i>Baixar Excel
+                  </button>
+                  <button class="btn btn-outline-secondary" id="btnNewDistribution">
+                    <i class="bi bi-arrow-repeat me-2"></i>Nova distribuição
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Coluna Direita - Informações (mesma altura) -->
+          <div class="col-lg-5 d-flex flex-column">
+            <!-- Card Download Modelo -->
+            <div class="card flex-grow-1 mb-4">
+              <div class="card-body d-flex flex-column">
+                <div class="card-header-custom">
+                  <i class="bi bi-download"></i>
+                  <div>
+                    <h5 class="mb-0">Modelo da planilha</h5>
+                    <small>Baixe o arquivo base</small>
+                  </div>
+                </div>
+                <p class="small text-muted mb-3">
+                  Planilha com as colunas <strong>NOME, RA, TURMA, ANO</strong> já configuradas.
+                </p>
+                <a href="/api/template" class="btn btn-outline-primary w-100 mt-auto" download="modelo_distribuidor.xlsx">
+                  <i class="bi bi-download me-2"></i>Baixar modelo .xlsx
+                </a>
+              </div>
+            </div>
+
+            <!-- Card Como Funciona -->
+            <div class="card flex-grow-1 mb-4">
+              <div class="card-body d-flex flex-column">
+                <div class="card-header-custom">
+                  <i class="bi bi-cpu"></i>
+                  <div>
+                    <h5 class="mb-0">Como funciona</h5>
+                    <small>Passo a passo simples</small>
+                  </div>
+                </div>
+                <div class="steps-list">
+                  <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                      <strong>Baixe o modelo</strong>
+                      <p class="small text-muted mb-0">Obtenha a planilha base com os cabeçalhos corretos</p>
+                    </div>
+                  </div>
+                  <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                      <strong>Preencha os dados</strong>
+                      <p class="small text-muted mb-0">Insira os alunos em cada aba (uma turma por aba)</p>
+                    </div>
+                  </div>
+                  <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                      <strong>Envie o arquivo</strong>
+                      <p class="small text-muted mb-0">Faça upload da planilha preenchida</p>
+                    </div>
+                  </div>
+                  <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                      <strong>Baixe o resultado</strong>
+                      <p class="small text-muted mb-0">Exporte o Excel com as salas organizadas</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card Estrutura -->
+            <div class="card flex-grow-1">
+              <div class="card-body d-flex flex-column">
+                <div class="card-header-custom">
+                  <i class="bi bi-table"></i>
+                  <div>
+                    <h5 class="mb-0">Estrutura da planilha</h5>
+                    <small>Colunas obrigatórias</small>
+                  </div>
+                </div>
+                <div class="specs-list">
+                  <div class="spec">
+                    <code>NOME</code>
+                    <span>Texto</span>
+                    <small>Nome completo do aluno</small>
+                  </div>
+                  <div class="spec">
+                    <code>RA</code>
+                    <span>Número</span>
+                    <small>Registro acadêmico</small>
+                  </div>
+                  <div class="spec">
+                    <code>TURMA</code>
+                    <span>Texto</span>
+                    <small>Ex: 1M1, 2M2</small>
+                  </div>
+                  <div class="spec">
+                    <code>ANO</code>
+                    <span>Número</span>
+                    <small>1, 2 ou 3</small>
+                  </div>
+                </div>
+                <div class="info-note mt-auto">
+                  <i class="bi bi-info-circle"></i>
+                  <span class="small">Cada aba do Excel representa uma turma. Mantenha os cabeçalhos exatamente como acima.</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+    </main>
 
-    <!-- Coluna direita - informações -->
-    <div class="col">
-      <div class="card">
-        <div class="card-header">
-          <i class="fa-regular fa-list-check"></i>
-          <h3>validação</h3>
-        </div>
-        <ul class="checklist">
-          <li id="check1"><span class="check-dot"></span> arquivo selecionado</li>
-          <li id="check2"><span class="check-dot"></span> formato .xlsx válido</li>
-          <li id="check3"><span class="check-dot"></span> pronto para processar</li>
-        </ul>
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <p class="mb-0 small text-muted">Distribuidor · Organização inteligente de salas</p>
       </div>
-
-      <div class="card">
-        <div class="card-header">
-          <i class="fa-regular fa-microchip"></i>
-          <h3>como funciona</h3>
-        </div>
-        <div class="steps">
-          <div class="step">
-            <span class="step-num">1</span>
-            <span>baixe o modelo e preencha os dados</span>
-          </div>
-          <div class="step">
-            <span class="step-num">2</span>
-            <span>faça upload da planilha preenchida</span>
-          </div>
-          <div class="step">
-            <span class="step-num">3</span>
-            <span>sistema embaralha e distribui os alunos</span>
-          </div>
-          <div class="step">
-            <span class="step-num">4</span>
-            <span>exporte o excel com as salas organizadas</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-header">
-          <i class="fa-regular fa-table"></i>
-          <h3>estrutura da planilha</h3>
-        </div>
-        <div class="specs">
-          <div class="spec">
-            <code>NOME</code>
-            <span>texto</span>
-          </div>
-          <div class="spec">
-            <code>RA</code>
-            <span>número</span>
-          </div>
-          <div class="spec">
-            <code>TURMA</code>
-            <span>texto</span>
-          </div>
-          <div class="spec">
-            <code>ANO</code>
-            <span>1, 2 ou 3</span>
-          </div>
-        </div>
-        <div class="note">
-          <i class="fa-regular fa-circle-info"></i>
-          <span>cada aba do excel representa uma turma. cabeçalhos devem ser idênticos.</span>
-        </div>
-      </div>
-    </div>
+    </footer>
   </div>
-</main>
 
-<footer>
-  <p>visconde · organizador de salas</p>
-</footer>
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
 
-<div class="toast-container" id="toastContainer"></div>
-
-<script src="script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
