@@ -3,178 +3,179 @@
 
   // DOM elements
   const dropzone = document.getElementById('dropzone');
-  const dzDefault = document.getElementById('dzDefault');
-  const dzSuccess = document.getElementById('dzSuccess');
-  const dzFileName = document.getElementById('dzFileName');
   const fileInput = document.getElementById('fileInput');
-  const btnGerar = document.getElementById('btnGerar');
-  const btnLimpar = document.getElementById('btnLimpar');
-  const progressCard = document.getElementById('progressCard');
+  const fileName = document.getElementById('fileName');
+  const btnProcess = document.getElementById('btnProcess');
+  const btnClear = document.getElementById('btnClear');
+  const progress = document.getElementById('progress');
   const progressFill = document.getElementById('progressFill');
   const progressLabel = document.getElementById('progressLabel');
+  const alertError = document.getElementById('alertError');
   const resultCard = document.getElementById('resultCard');
   const resultStats = document.getElementById('resultStats');
   const resultBody = document.getElementById('resultBody');
   const btnDownload = document.getElementById('btnDownload');
   const btnReset = document.getElementById('btnReset');
-  const toastStack = document.getElementById('toastStack');
+  const toastContainer = document.getElementById('toastContainer');
 
-  // checklist
-  const checkFormat = document.getElementById('checkFormat');
-  const checkUpload = document.getElementById('checkUpload');
-  const checkReady = document.getElementById('checkReady');
+  // Checklist elements
+  const check1 = document.getElementById('check1');
+  const check2 = document.getElementById('check2');
+  const check3 = document.getElementById('check3');
 
-  // navigation
-  const navBtns = document.querySelectorAll('.nav-btn');
-  const pages = document.querySelectorAll('.page');
-
-  // state
+  // State
   let uploadedFile = null;
-  let currentResult = null; // { b64, filename, data }
+  let resultB64 = null;
+  let resultFilename = 'resultado.xlsx';
 
-  // ==================== NAVEGAÇÃO ====================
-  function navigate(pageId) {
-    pages.forEach(page => page.classList.remove('active'));
-    document.getElementById(`page-${pageId}`).classList.add('active');
-    navBtns.forEach(btn => {
-      if (btn.dataset.page === pageId) btn.classList.add('active');
-      else btn.classList.remove('active');
-    });
-  }
-
-  navBtns.forEach(btn => {
-    btn.addEventListener('click', () => navigate(btn.dataset.page));
-  });
-
-  // ==================== TOAST ====================
-  function showToast(message, type = 'info') {
+  // Toast
+  function showToast(message, type = 'success') {
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
-    const icon = type === 'success' ? 'fa-regular fa-circle-check' : (type === 'error' ? 'fa-regular fa-circle-exclamation' : 'fa-regular fa-circle-info');
-    toast.innerHTML = `<i class="${icon} ti"></i><span>${message}</span>`;
-    toastStack.appendChild(toast);
-    setTimeout(() => toast.remove(), 3500);
+    toast.innerHTML = `<i class="fa-regular ${type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation'}"></i><span>${message}</span>`;
+    toastContainer.appendChild(toast);
+    setTimeout(() => {
+      toast.style.animation = 'slideOut 0.3s ease forwards';
+      setTimeout(() => toast.remove(), 300);
+    }, 3500);
   }
 
-  // ==================== CHECKLIST ====================
+  // Update checklist
   function updateChecklist() {
-    const hasFile = !!uploadedFile;
-    checkFormat.classList.toggle('done', hasFile);
-    checkUpload.classList.toggle('done', hasFile);
-    checkReady.classList.toggle('done', hasFile && btnGerar && !btnGerar.disabled);
-    if (hasFile) checkReady.classList.add('done');
-    else checkReady.classList.remove('done');
-  }
-
-  // ==================== UPLOAD ====================
-  function handleFile(file) {
-    if (!file) return;
-    const ext = file.name.split('.').pop().toLowerCase();
-    if (ext !== 'xlsx' && ext !== 'xls') {
-      showToast('formato inválido. use .xlsx ou .xls', 'error');
-      return;
+    if (uploadedFile) {
+      check1.classList.add('done');
+      check2.classList.add('done');
+      check3.classList.add('done');
+      btnProcess.disabled = false;
+      btnClear.disabled = false;
+    } else {
+      check1.classList.remove('done');
+      check2.classList.remove('done');
+      check3.classList.remove('done');
+      btnProcess.disabled = true;
+      btnClear.disabled = true;
     }
-    uploadedFile = file;
-    dzDefault.style.display = 'none';
-    dzSuccess.style.display = 'flex';
-    dzFileName.textContent = file.name;
-    btnGerar.disabled = false;
-    btnLimpar.disabled = false;
-    updateChecklist();
-    showToast(`arquivo "${file.name}" carregado`, 'success');
   }
 
-  function clearUpload() {
-    uploadedFile = null;
-    currentResult = null;
-    dzDefault.style.display = 'flex';
-    dzSuccess.style.display = 'none';
-    dzFileName.textContent = '';
-    btnGerar.disabled = true;
-    btnLimpar.disabled = true;
-    progressCard.style.display = 'none';
-    resultCard.style.display = 'none';
-    fileInput.value = '';
-    updateChecklist();
-    showToast('upload removido', 'info');
+  // Hide error
+  function hideError() {
+    alertError.classList.remove('show');
   }
 
-  dropzone.addEventListener('click', () => {
-    if (!uploadedFile) fileInput.click();
-  });
-  fileInput.addEventListener('change', (e) => {
-    if (e.target.files.length) handleFile(e.target.files[0]);
-  });
+  // Show error
+  function showError(message) {
+    alertError.textContent = message;
+    alertError.classList.add('show');
+  }
 
-  // drag & drop
-  dropzone.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    dropzone.classList.add('dz-drag');
-  });
-  dropzone.addEventListener('dragleave', () => {
-    dropzone.classList.remove('dz-drag');
-  });
-  dropzone.addEventListener('drop', (e) => {
-    e.preventDefault();
-    dropzone.classList.remove('dz-drag');
-    const file = e.dataTransfer.files[0];
-    if (file) handleFile(file);
-  });
-
-  btnLimpar.addEventListener('click', clearUpload);
-
-  // ==================== PROCESSAMENTO (API) ====================
+  // Set progress
   function setProgress(percent, label) {
-    progressFill.style.width = `${percent}%`;
+    progressFill.style.width = percent + '%';
     if (label) progressLabel.textContent = label;
   }
 
-  btnGerar.addEventListener('click', async () => {
-    if (!uploadedFile) return;
+  // Handle file selection
+  function setFile(file) {
+    if (!file) return;
+    
+    const ext = file.name.split('.').pop().toLowerCase();
+    if (ext !== 'xlsx' && ext !== 'xls') {
+      showError('Formato inválido. Use arquivos .xlsx ou .xls');
+      return;
+    }
+    
+    uploadedFile = file;
+    fileName.textContent = file.name;
+    hideError();
+    updateChecklist();
+    showToast(`Arquivo "${file.name}" carregado`, 'success');
+  }
 
-    // show progress
-    progressCard.style.display = 'block';
+  // Clear upload
+  function clearUpload() {
+    uploadedFile = null;
+    resultB64 = null;
+    fileName.textContent = '';
+    fileInput.value = '';
+    progress.classList.remove('show');
     resultCard.style.display = 'none';
-    setProgress(10, 'enviando arquivo...');
+    hideError();
+    updateChecklist();
+    showToast('Upload removido', 'success');
+  }
+
+  // Dropzone events
+  dropzone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropzone.classList.add('drag');
+  });
+
+  dropzone.addEventListener('dragleave', () => {
+    dropzone.classList.remove('drag');
+  });
+
+  dropzone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropzone.classList.remove('drag');
+    const file = e.dataTransfer.files[0];
+    if (file) setFile(file);
+  });
+
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files[0]) setFile(fileInput.files[0]);
+  });
+
+  btnClear.addEventListener('click', clearUpload);
+
+  // Process file
+  btnProcess.addEventListener('click', async () => {
+    if (!uploadedFile) {
+      showError('Selecione um arquivo primeiro');
+      return;
+    }
+
+    hideError();
+    resultCard.style.display = 'none';
+    progress.classList.add('show');
+    setProgress(10, 'Enviando arquivo...');
 
     const formData = new FormData();
     formData.append('arquivo', uploadedFile);
 
     try {
-      setProgress(30, 'processando distribuição...');
+      setProgress(30, 'Processando distribuição...');
       const response = await fetch('/api/processar', {
         method: 'POST',
         body: formData
       });
 
-      setProgress(80, 'gerando relatório...');
+      setProgress(70, 'Gerando relatório...');
       const data = await response.json();
 
       if (data.erro) {
         throw new Error(data.erro);
       }
 
-      setProgress(100, 'concluído!');
+      setProgress(100, 'Concluído!');
       setTimeout(() => {
-        progressCard.style.display = 'none';
+        progress.classList.remove('show');
         showResult(data);
       }, 400);
 
     } catch (err) {
-      progressCard.style.display = 'none';
-      showToast(err.message || 'erro ao processar', 'error');
+      progress.classList.remove('show');
+      showError(err.message || 'Erro ao processar arquivo');
+      showToast(err.message || 'Erro ao processar', 'error');
     }
   });
 
+  // Show result
   function showResult(data) {
-    currentResult = {
-      b64: data.arquivo_b64,
-      filename: data.filename,
-      resumo: data.resumo,
-      total_alunos: data.total_alunos
-    };
+    resultB64 = data.arquivo_b64;
+    resultFilename = data.filename;
 
-    resultStats.innerHTML = `<strong>${data.total_alunos}</strong> alunos · <strong>${data.resumo.length}</strong> salas ocupadas`;
+    resultStats.innerHTML = `<strong>${data.total_alunos}</strong> alunos distribuídos em <strong>${data.resumo.length}</strong> salas`;
+
     resultBody.innerHTML = '';
     data.resumo.forEach(row => {
       resultBody.innerHTML += `
@@ -187,54 +188,37 @@
         </tr>
       `;
     });
+
     resultCard.style.display = 'block';
     resultCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    showToast('Distribuição gerada com sucesso!', 'success');
   }
 
-  // ==================== DOWNLOAD RESULTADO ====================
+  // Download result
   btnDownload.addEventListener('click', () => {
-    if (!currentResult || !currentResult.b64) return;
-    const binary = atob(currentResult.b64);
+    if (!resultB64) return;
+
+    const binary = atob(resultB64);
     const bytes = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-    const blob = new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    for (let i = 0; i < binary.length; i++) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+
+    const blob = new Blob([bytes], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = currentResult.filename || 'distribuicao_salas.xlsx';
+    a.download = resultFilename;
     a.click();
     URL.revokeObjectURL(url);
-    showToast('download iniciado', 'success');
+    showToast('Download iniciado', 'success');
   });
 
+  // Reset
   btnReset.addEventListener('click', () => {
     clearUpload();
     resultCard.style.display = 'none';
   });
-
-  // ==================== DOWNLOAD MODELO ====================
-  async function downloadTemplate() {
-    try {
-      const response = await fetch('/api/template');
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'modelo_alunos.xlsx';
-      a.click();
-      URL.revokeObjectURL(url);
-      showToast('modelo baixado', 'success');
-    } catch (err) {
-      showToast('erro ao baixar modelo', 'error');
-    }
-  }
-
-  const modelBtns = document.querySelectorAll('#btnDownloadModelo, #btnDownloadModelo2');
-  modelBtns.forEach(btn => {
-    btn.addEventListener('click', downloadTemplate);
-  });
-
-  // inicialização
-  navigate('organizar');
-  updateChecklist();
 })();
