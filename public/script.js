@@ -1,79 +1,95 @@
 (function() {
   'use strict';
 
-  // DOM elements
+  // Theme Toggle
+  const themeToggle = document.getElementById('themeToggle');
+  const htmlElement = document.body;
+  
+  function setTheme(theme) {
+    htmlElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }
+  
+  function toggleTheme() {
+    const currentTheme = htmlElement.getAttribute('data-theme');
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+  }
+  
+  themeToggle.addEventListener('click', toggleTheme);
+  
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme) {
+    setTheme(savedTheme);
+  } else {
+    setTheme('light');
+  }
+  
+  // DOM Elements
   const dropzone = document.getElementById('dropzone');
+  const dropzoneDefault = document.getElementById('dropzoneDefault');
+  const dropzoneSuccess = document.getElementById('dropzoneSuccess');
+  const uploadFileName = document.getElementById('uploadFileName');
   const fileInput = document.getElementById('fileInput');
-  const fileName = document.getElementById('fileName');
   const btnProcess = document.getElementById('btnProcess');
   const btnClear = document.getElementById('btnClear');
-  const progress = document.getElementById('progress');
-  const progressFill = document.getElementById('progressFill');
+  const progressWrapper = document.getElementById('progressWrapper');
+  const progressBar = document.getElementById('progressBar');
   const progressLabel = document.getElementById('progressLabel');
-  const alertError = document.getElementById('alertError');
+  const progressPercent = document.getElementById('progressPercent');
+  const errorAlert = document.getElementById('errorAlert');
+  const errorMessage = document.getElementById('errorMessage');
   const resultCard = document.getElementById('resultCard');
-  const resultStats = document.getElementById('resultStats');
+  const resultSummary = document.getElementById('resultSummary');
   const resultBody = document.getElementById('resultBody');
   const btnDownload = document.getElementById('btnDownload');
-  const btnReset = document.getElementById('btnReset');
+  const btnNewDistribution = document.getElementById('btnNewDistribution');
   const toastContainer = document.getElementById('toastContainer');
-
-  // Checklist elements
-  const check1 = document.getElementById('check1');
-  const check2 = document.getElementById('check2');
-  const check3 = document.getElementById('check3');
-
+  
   // State
   let uploadedFile = null;
   let resultB64 = null;
   let resultFilename = 'resultado.xlsx';
-
-  // Toast
+  
+  // Toast function
   function showToast(message, type = 'success') {
     const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    toast.innerHTML = `<i class="fa-regular ${type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation'}"></i><span>${message}</span>`;
+    toast.className = `custom-toast ${type}`;
+    toast.innerHTML = `<i class="fa-regular ${type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation'} me-2"></i><span>${message}</span>`;
     toastContainer.appendChild(toast);
     setTimeout(() => {
       toast.style.animation = 'slideOut 0.3s ease forwards';
       setTimeout(() => toast.remove(), 300);
     }, 3500);
   }
-
-  // Update checklist
-  function updateChecklist() {
-    if (uploadedFile) {
-      check1.classList.add('done');
-      check2.classList.add('done');
-      check3.classList.add('done');
-      btnProcess.disabled = false;
-      btnClear.disabled = false;
-    } else {
-      check1.classList.remove('done');
-      check2.classList.remove('done');
-      check3.classList.remove('done');
-      btnProcess.disabled = true;
-      btnClear.disabled = true;
-    }
-  }
-
+  
   // Hide error
   function hideError() {
-    alertError.classList.remove('show');
+    errorAlert.style.display = 'none';
+    errorMessage.textContent = '';
+    errorAlert.classList.remove('show');
   }
-
+  
   // Show error
   function showError(message) {
-    alertError.textContent = message;
-    alertError.classList.add('show');
+    errorMessage.textContent = message;
+    errorAlert.style.display = 'block';
+    errorAlert.classList.add('show');
+    setTimeout(() => {
+      errorAlert.classList.remove('show');
+      setTimeout(() => {
+        errorAlert.style.display = 'none';
+      }, 300);
+    }, 5000);
   }
-
+  
   // Set progress
   function setProgress(percent, label) {
-    progressFill.style.width = percent + '%';
+    progressBar.style.width = `${percent}%`;
+    progressPercent.textContent = `${percent}%`;
     if (label) progressLabel.textContent = label;
   }
-
+  
   // Handle file selection
   function setFile(file) {
     if (!file) return;
@@ -85,97 +101,107 @@
     }
     
     uploadedFile = file;
-    fileName.textContent = file.name;
+    dropzoneDefault.style.display = 'none';
+    dropzoneSuccess.style.display = 'flex';
+    uploadFileName.textContent = file.name;
     hideError();
-    updateChecklist();
-    showToast(`Arquivo "${file.name}" carregado`, 'success');
+    btnProcess.disabled = false;
+    btnClear.disabled = false;
+    showToast(`Arquivo "${file.name}" carregado com sucesso`, 'success');
   }
-
+  
   // Clear upload
   function clearUpload() {
     uploadedFile = null;
     resultB64 = null;
-    fileName.textContent = '';
+    dropzoneDefault.style.display = 'flex';
+    dropzoneSuccess.style.display = 'none';
+    uploadFileName.textContent = '';
     fileInput.value = '';
-    progress.classList.remove('show');
+    progressWrapper.style.display = 'none';
     resultCard.style.display = 'none';
     hideError();
-    updateChecklist();
+    btnProcess.disabled = true;
+    btnClear.disabled = true;
     showToast('Upload removido', 'success');
   }
-
+  
   // Dropzone events
   dropzone.addEventListener('dragover', (e) => {
     e.preventDefault();
     dropzone.classList.add('drag');
   });
-
+  
   dropzone.addEventListener('dragleave', () => {
     dropzone.classList.remove('drag');
   });
-
+  
   dropzone.addEventListener('drop', (e) => {
     e.preventDefault();
     dropzone.classList.remove('drag');
     const file = e.dataTransfer.files[0];
     if (file) setFile(file);
   });
-
+  
   fileInput.addEventListener('change', () => {
     if (fileInput.files[0]) setFile(fileInput.files[0]);
   });
-
+  
   btnClear.addEventListener('click', clearUpload);
-
+  
   // Process file
   btnProcess.addEventListener('click', async () => {
     if (!uploadedFile) {
       showError('Selecione um arquivo primeiro');
       return;
     }
-
+    
     hideError();
     resultCard.style.display = 'none';
-    progress.classList.add('show');
-    setProgress(10, 'Enviando arquivo...');
-
+    progressWrapper.style.display = 'block';
+    setProgress(0, 'Iniciando...');
+    
     const formData = new FormData();
     formData.append('arquivo', uploadedFile);
-
+    
     try {
-      setProgress(30, 'Processando distribuição...');
+      setProgress(15, 'Enviando arquivo...');
       const response = await fetch('/api/processar', {
         method: 'POST',
         body: formData
       });
-
-      setProgress(70, 'Gerando relatório...');
+      
+      setProgress(40, 'Processando distribuição...');
       const data = await response.json();
-
+      
       if (data.erro) {
         throw new Error(data.erro);
       }
-
-      setProgress(100, 'Concluído!');
+      
+      setProgress(80, 'Gerando relatório...');
+      
       setTimeout(() => {
-        progress.classList.remove('show');
-        showResult(data);
-      }, 400);
-
+        setProgress(100, 'Concluído!');
+        setTimeout(() => {
+          progressWrapper.style.display = 'none';
+          showResult(data);
+        }, 400);
+      }, 300);
+      
     } catch (err) {
-      progress.classList.remove('show');
+      progressWrapper.style.display = 'none';
       showError(err.message || 'Erro ao processar arquivo');
       showToast(err.message || 'Erro ao processar', 'error');
     }
   });
-
+  
   // Show result
   function showResult(data) {
     resultB64 = data.arquivo_b64;
     resultFilename = data.filename;
-
-    resultStats.innerHTML = `<strong>${data.total_alunos}</strong> alunos distribuídos em <strong>${data.resumo.length}</strong> salas`;
-
+    
+    resultSummary.innerHTML = `<strong>${data.total_alunos}</strong> alunos · <strong>${data.resumo.length}</strong> salas ocupadas`;
+    
     resultBody.innerHTML = '';
     data.resumo.forEach(row => {
       resultBody.innerHTML += `
@@ -188,22 +214,22 @@
         </tr>
       `;
     });
-
+    
     resultCard.style.display = 'block';
     resultCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     showToast('Distribuição gerada com sucesso!', 'success');
   }
-
+  
   // Download result
   btnDownload.addEventListener('click', () => {
     if (!resultB64) return;
-
+    
     const binary = atob(resultB64);
     const bytes = new Uint8Array(binary.length);
     for (let i = 0; i < binary.length; i++) {
       bytes[i] = binary.charCodeAt(i);
     }
-
+    
     const blob = new Blob([bytes], {
       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     });
@@ -215,9 +241,9 @@
     URL.revokeObjectURL(url);
     showToast('Download iniciado', 'success');
   });
-
-  // Reset
-  btnReset.addEventListener('click', () => {
+  
+  // New distribution
+  btnNewDistribution.addEventListener('click', () => {
     clearUpload();
     resultCard.style.display = 'none';
   });
