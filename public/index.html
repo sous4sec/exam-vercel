@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Visconde · Organizador de Salas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<div class="noise" aria-hidden="true"></div>
+
+<div class="shell">
+
+  <!-- ═══ SIDEBAR ═══════════════════════════════════ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-logo">
+      <div class="sb-logo-mark"><span>V</span></div>
+      <div class="sb-logo-text">
+        <strong>VISCONDE</strong>
+        <em>SAS ADAPT</em>
+      </div>
+    </div>
+
+    <div class="sb-section-label">MENU</div>
+    <nav class="sb-nav">
+      <a href="#" class="sb-link active" data-page="inicio">
+        <i class="fa-solid fa-house-chimney"></i>
+        <span>Início</span>
+        <span class="sb-link-arrow"><i class="fa-solid fa-chevron-right"></i></span>
+      </a>
+      <a href="#" class="sb-link" data-page="modelo">
+        <i class="fa-solid fa-file-spreadsheet"></i>
+        <span>Modelo</span>
+        <span class="sb-link-arrow"><i class="fa-solid fa-chevron-right"></i></span>
+      </a>
+      <a href="#" class="sb-link" data-page="organizar">
+        <i class="fa-solid fa-objects-column"></i>
+        <span>Organizar</span>
+        <span class="sb-link-arrow"><i class="fa-solid fa-chevron-right"></i></span>
+      </a>
+    </nav>
+
+    <div class="sb-section-label" style="margin-top:auto;">SISTEMA</div>
+    <div class="sb-meta">
+      <div class="sb-meta-row">
+        <i class="fa-solid fa-circle-dot"></i>
+        <span>Online</span>
+        <span class="sb-badge-green">Ativo</span>
+      </div>
+      <div class="sb-meta-row">
+        <i class="fa-solid fa-code-branch"></i>
+        <span>Versão 1.0.0</span>
+      </div>
+      <div class="sb-meta-row">
+        <i class="fa-solid fa-calendar-days"></i>
+        <span>2025 · Visconde</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═══ MAIN ══════════════════════════════════════ -->
+  <div class="main" id="main">
+
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="mob-toggle" id="mobToggle" aria-label="Menu"><i class="fa-solid fa-bars-staggered"></i></button>
+        <div class="topbar-crumb">
+          <span class="crumb-root">Visconde</span>
+          <i class="fa-solid fa-angle-right"></i>
+          <span id="crumbCurrent">Início</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-stat">
+          <i class="fa-solid fa-door-open"></i>
+          <span>7 salas</span>
+        </div>
+        <div class="topbar-stat">
+          <i class="fa-solid fa-layer-group"></i>
+          <span>3 anos</span>
+        </div>
+        <div class="topbar-avatar">
+          <i class="fa-solid fa-user-tie"></i>
+          <span>Coordenação</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <!-- ─── PAGE INÍCIO ─────────────────────────── -->
+      <section class="page active" id="page-inicio">
+
+        <div class="hero-band">
+          <div class="hero-band-left">
+            <p class="hero-eyebrow"><i class="fa-solid fa-sparkles"></i> ORGANIZADOR DE PROVAS</p>
+            <h1 class="hero-title">Distribua alunos<br/><em>em segundos.</em></h1>
+            <p class="hero-body">Importe sua planilha com os dados dos alunos e gere automaticamente a distribuição por sala de prova. Tudo em três etapas simples.</p>
+            <div class="hero-actions">
+              <button class="btn btn-accent" data-goto="modelo"><i class="fa-solid fa-arrow-down-to-line"></i> Baixar Modelo</button>
+              <button class="btn btn-ghost" data-goto="organizar"><i class="fa-solid fa-arrow-right"></i> Ir para Organização</button>
+            </div>
+          </div>
+          <div class="hero-band-right">
+            <div class="hero-stat-grid">
+              <div class="hero-stat">
+                <span class="hs-num">7</span>
+                <span class="hs-label">Salas de prova</span>
+              </div>
+              <div class="hero-stat">
+                <span class="hs-num">3</span>
+                <span class="hs-label">Anos atendidos</span>
+              </div>
+              <div class="hero-stat">
+                <span class="hs-num">206</span>
+                <span class="hs-label">Vagas disponíveis</span>
+              </div>
+              <div class="hero-stat">
+                <span class="hs-num hs-ready">Pronto</span>
+                <span class="hs-label">Status do sistema</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-header">
+          <span class="section-tag">COMO FUNCIONA</span>
+          <div class="section-line"></div>
+        </div>
+
+        <div class="steps-track">
+          <div class="step-item">
+            <div class="step-inner">
+              <div class="step-head">
+                <div class="step-circle"><i class="fa-solid fa-file-arrow-down"></i></div>
+                <div class="step-num-label">ETAPA 01</div>
+              </div>
+              <h3>Baixe o modelo</h3>
+              <p>Utilize a planilha padrão com as colunas <code>NOME</code>, <code>RA</code>, <code>TURMA</code> e <code>ANO</code> já configuradas.</p>
+              <button class="btn btn-sm btn-outline" data-goto="modelo"><i class="fa-solid fa-download"></i> Baixar agora</button>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-inner">
+              <div class="step-head">
+                <div class="step-circle step-circle-mid"><i class="fa-solid fa-table-cells"></i></div>
+                <div class="step-num-label">ETAPA 02</div>
+              </div>
+              <h3>Preencha os dados</h3>
+              <p>Insira os dados de cada aluno nas abas correspondentes às turmas. Não altere os cabeçalhos.</p>
+              <div class="step-tag-row">
+                <span class="tag-mono">NOME</span>
+                <span class="tag-mono">RA</span>
+                <span class="tag-mono">TURMA</span>
+                <span class="tag-mono">ANO</span>
+              </div>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-inner">
+              <div class="step-head">
+                <div class="step-circle step-circle-end"><i class="fa-solid fa-wand-sparkles"></i></div>
+                <div class="step-num-label">ETAPA 03</div>
+              </div>
+              <h3>Gere a distribuição</h3>
+              <p>Faça o upload da planilha preenchida e o sistema distribui os alunos automaticamente pelas salas.</p>
+              <button class="btn btn-sm btn-accent" data-goto="organizar"><i class="fa-solid fa-arrow-right"></i> Ir para upload</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-header" style="margin-top:40px;">
+          <span class="section-tag">RECURSOS</span>
+          <div class="section-line"></div>
+        </div>
+
+        <div class="features-grid">
+          <div class="feat-card">
+            <div class="feat-icon-wrap feat-blue"><i class="fa-solid fa-bolt-lightning"></i></div>
+            <div class="feat-body">
+              <h4>Distribuição aleatória</h4>
+              <p>Alunos embaralhados e alocados respeitando as vagas de cada sala por ano.</p>
+            </div>
+            <div class="feat-arrow"><i class="fa-solid fa-arrow-up-right"></i></div>
+          </div>
+          <div class="feat-card">
+            <div class="feat-icon-wrap feat-teal"><i class="fa-solid fa-users-viewfinder"></i></div>
+            <div class="feat-body">
+              <h4>Separação por ano</h4>
+              <p>1º, 2º e 3º anos alocados em posições definidas dentro de cada sala.</p>
+            </div>
+            <div class="feat-arrow"><i class="fa-solid fa-arrow-up-right"></i></div>
+          </div>
+          <div class="feat-card">
+            <div class="feat-icon-wrap feat-green"><i class="fa-solid fa-file-excel"></i></div>
+            <div class="feat-body">
+              <h4>Exportação Excel</h4>
+              <p>Relatório final formatado com mapa visual de sala, pronto para uso.</p>
+            </div>
+            <div class="feat-arrow"><i class="fa-solid fa-arrow-up-right"></i></div>
+          </div>
+          <div class="feat-card">
+            <div class="feat-icon-wrap feat-purple"><i class="fa-solid fa-map-pin"></i></div>
+            <div class="feat-body">
+              <h4>Mapa de carteiras</h4>
+              <p>Cada aluno é posicionado na carteira correta conforme o gabarito da sala.</p>
+            </div>
+            <div class="feat-arrow"><i class="fa-solid fa-arrow-up-right"></i></div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ─── PAGE MODELO ─────────────────────────── -->
+      <section class="page" id="page-modelo">
+
+        <div class="page-title-row">
+          <div>
+            <h1 class="pg-title">Modelo de Planilha</h1>
+            <p class="pg-sub">Use o arquivo oficial para garantir a importação correta dos dados.</p>
+          </div>
+          <a href="/api/template" class="btn btn-accent" download="alunos_template.xlsx">
+            <i class="fa-solid fa-arrow-down-to-line"></i> Baixar Modelo
+          </a>
+        </div>
+
+        <div class="modelo-layout">
+          <div class="modelo-col-main">
+
+            <div class="panel">
+              <div class="panel-titlebar">
+                <i class="fa-solid fa-table-columns"></i>
+                <span>Estrutura obrigatória</span>
+              </div>
+              <p class="panel-hint">A planilha possui <strong>uma aba por turma</strong>. Cada aba deve conter exatamente as colunas abaixo no cabeçalho.</p>
+              <div class="col-table">
+                <div class="ct-head">
+                  <div>Coluna</div><div>Tipo</div><div>Obrigatório</div><div>Exemplo</div>
+                </div>
+                <div class="ct-row">
+                  <div><code>NOME</code></div>
+                  <div><span class="type-pill">Texto</span></div>
+                  <div><span class="req-yes"><i class="fa-solid fa-check"></i> Sim</span></div>
+                  <div class="ct-example">Maria Silva Santos</div>
+                </div>
+                <div class="ct-row">
+                  <div><code>RA</code></div>
+                  <div><span class="type-pill">Número</span></div>
+                  <div><span class="req-yes"><i class="fa-solid fa-check"></i> Sim</span></div>
+                  <div class="ct-example">10042</div>
+                </div>
+                <div class="ct-row">
+                  <div><code>TURMA</code></div>
+                  <div><span class="type-pill">Texto</span></div>
+                  <div><span class="req-yes"><i class="fa-solid fa-check"></i> Sim</span></div>
+                  <div class="ct-example">1M1</div>
+                </div>
+                <div class="ct-row">
+                  <div><code>ANO</code></div>
+                  <div><span class="type-pill">Número</span></div>
+                  <div><span class="req-yes"><i class="fa-solid fa-check"></i> Sim</span></div>
+                  <div class="ct-example">1</div>
+                </div>
+              </div>
+              <div class="warn-strip">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <div>
+                  <strong>Atenção: não altere os nomes das colunas nem os nomes das abas.</strong>
+                  <span>O sistema reconhece os dados pelo cabeçalho exato. Variações causarão erro na importação.</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-titlebar">
+                <i class="fa-solid fa-circle-question"></i>
+                <span>Regras de preenchimento</span>
+              </div>
+              <ul class="rules-list">
+                <li><i class="fa-solid fa-angle-right"></i> A planilha tem <strong>uma aba por turma</strong> — preencha cada aba com os alunos daquela turma.</li>
+                <li><i class="fa-solid fa-angle-right"></i> Primeira linha de cada aba deve ser o cabeçalho com os nomes exatos das colunas.</li>
+                <li><i class="fa-solid fa-angle-right"></i> Nenhuma célula das colunas obrigatórias pode ficar vazia.</li>
+                <li><i class="fa-solid fa-angle-right"></i> A coluna <code>ANO</code> deve conter apenas o número: <code>1</code>, <code>2</code> ou <code>3</code>.</li>
+                <li><i class="fa-solid fa-angle-right"></i> O arquivo deve estar no formato <code>.xlsx</code>.</li>
+              </ul>
+            </div>
+
+          </div>
+          <div class="modelo-col-side">
+
+            <div class="download-card">
+              <div class="dl-card-top">
+                <div class="dl-file-icon"><i class="fa-solid fa-file-excel"></i></div>
+                <div class="dl-file-info">
+                  <strong>alunos_template.xlsx</strong>
+                  <span>Planilha Modelo Oficial</span>
+                </div>
+              </div>
+              <div class="dl-card-meta">
+                <div class="dl-meta-item"><i class="fa-solid fa-layer-group"></i><span>7 abas (uma por turma)</span></div>
+                <div class="dl-meta-item"><i class="fa-solid fa-file-lines"></i><span>Formato .xlsx</span></div>
+                <div class="dl-meta-item"><i class="fa-solid fa-table-rows"></i><span>Cabeçalhos prontos</span></div>
+              </div>
+              <a href="/api/template" class="btn btn-accent btn-full" download="alunos_template.xlsx">
+                <i class="fa-solid fa-arrow-down-to-line"></i> Baixar Planilha Modelo
+              </a>
+            </div>
+
+            <div class="panel panel-compact">
+              <div class="panel-titlebar">
+                <i class="fa-solid fa-layer-group"></i>
+                <span>Abas do arquivo</span>
+              </div>
+              <div class="abas-list">
+                <div class="aba-item ano1"><span class="aba-pill">1M1</span><span>1º Ano · Turma M1</span></div>
+                <div class="aba-item ano1"><span class="aba-pill">1M2</span><span>1º Ano · Turma M2</span></div>
+                <div class="aba-item ano2"><span class="aba-pill">2M1</span><span>2º Ano · Turma M1</span></div>
+                <div class="aba-item ano2"><span class="aba-pill">2M2</span><span>2º Ano · Turma M2</span></div>
+                <div class="aba-item ano3"><span class="aba-pill">3M1</span><span>3º Ano · Turma M1</span></div>
+                <div class="aba-item ano3"><span class="aba-pill">3M2</span><span>3º Ano · Turma M2</span></div>
+                <div class="aba-item ano3"><span class="aba-pill">3M3</span><span>3º Ano · Turma M3</span></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ─── PAGE ORGANIZAR ──────────────────────── -->
+      <section class="page" id="page-organizar">
+
+        <div class="page-title-row">
+          <div>
+            <h1 class="pg-title">Organizar Salas</h1>
+            <p class="pg-sub">Envie a planilha preenchida e gere a distribuição de alunos por sala.</p>
+          </div>
+        </div>
+
+        <div class="organizar-layout">
+          <div class="organizar-col-main">
+
+            <div class="panel">
+              <div class="panel-titlebar">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <span>Upload da planilha</span>
+              </div>
+              <div class="dropzone" id="dropzone">
+                <div class="dz-default" id="dzDefault">
+                  <div class="dz-icon"><i class="fa-solid fa-file-arrow-up"></i></div>
+                  <p class="dz-title">Arraste sua planilha aqui</p>
+                  <p class="dz-sub">ou clique para selecionar o arquivo</p>
+                  <p class="dz-hint"><i class="fa-solid fa-circle-dot"></i> .xlsx · máx. 10 MB</p>
+                  <input type="file" id="fileInput" accept=".xlsx,.xls" hidden/>
+                </div>
+                <div class="dz-success" id="dzSuccess" style="display:none">
+                  <div class="dz-suc-icon"><i class="fa-solid fa-circle-check"></i></div>
+                  <p class="dz-suc-name" id="dzFileName">arquivo_alunos.xlsx</p>
+                  <p class="dz-suc-sub">Arquivo pronto para distribuição</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- progress bar (oculta por padrão) -->
+            <div class="panel panel-progress" id="panelProgress" style="display:none">
+              <div class="panel-titlebar">
+                <i class="fa-solid fa-spinner fa-spin"></i>
+                <span id="progressLabel">Processando distribuição…</span>
+              </div>
+              <div class="prog-bg"><div class="prog-fill" id="progFill"></div></div>
+            </div>
+
+            <!-- resultado (oculto por padrão) -->
+            <div class="panel" id="panelResult" style="display:none">
+              <div class="panel-titlebar">
+                <i class="fa-solid fa-circle-check" style="color:var(--green)"></i>
+                <span>Distribuição concluída</span>
+              </div>
+              <p class="result-meta" id="resultMeta"></p>
+              <table class="result-table">
+                <thead>
+                  <tr>
+                    <th>Sala</th>
+                    <th>1º Ano</th>
+                    <th>2º Ano</th>
+                    <th>3º Ano</th>
+                    <th>Total</th>
+                  </tr>
+                </thead>
+                <tbody id="resultBody"></tbody>
+              </table>
+              <div class="result-actions">
+                <button class="btn btn-accent btn-lg" id="btnDownloadResult">
+                  <i class="fa-solid fa-arrow-down-to-line"></i> Baixar Excel das Salas
+                </button>
+                <button class="btn btn-ghost" id="btnNovaDistribuicao">
+                  <i class="fa-solid fa-rotate-left"></i> Nova distribuição
+                </button>
+              </div>
+            </div>
+
+            <div class="orga-action-row" id="actionRow">
+              <button class="btn btn-accent btn-lg" id="btnGerar" disabled>
+                <i class="fa-solid fa-wand-sparkles"></i> Gerar Excel das Salas
+              </button>
+              <button class="btn btn-ghost" id="btnLimpar" disabled>
+                <i class="fa-solid fa-rotate-left"></i> Limpar
+              </button>
+            </div>
+
+          </div>
+
+          <div class="organizar-col-side">
+
+            <div class="panel">
+              <div class="panel-titlebar">
+                <i class="fa-solid fa-list-check"></i>
+                <span>Validação</span>
+              </div>
+              <ul class="check-list">
+                <li class="cl-item" id="check1"><div class="cl-dot"></div><span>Formato de arquivo aceito</span></li>
+                <li class="cl-item" id="check2"><div class="cl-dot"></div><span>Arquivo carregado</span></li>
+                <li class="cl-item" id="check3"><div class="cl-dot"></div><span>Pronto para processar</span></li>
+              </ul>
+            </div>
+
+            <div class="panel panel-compact">
+              <div class="panel-titlebar">
+                <i class="fa-solid fa-chart-simple"></i>
+                <span>Resumo do upload</span>
+              </div>
+              <div class="preview-empty" id="previewArea">
+                <i class="fa-solid fa-file-dashed-line"></i>
+                <p>Aguardando upload<br/>para exibir resumo</p>
+              </div>
+              <div class="preview-data" id="previewData" style="display:none">
+                <div class="preview-row"><span>Arquivo</span><strong id="prevNome">—</strong></div>
+                <div class="preview-row"><span>Salas a preencher</span><strong>7</strong></div>
+                <div class="preview-row"><span>Anos processados</span><strong>1º · 2º · 3º</strong></div>
+              </div>
+            </div>
+
+            <div class="panel panel-compact panel-info">
+              <i class="fa-solid fa-circle-info"></i>
+              <p>Os alunos são embaralhados aleatoriamente antes de serem distribuídos nas salas, garantindo imparcialidade na alocação.</p>
+            </div>
+
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<div class="toast-stack" id="toastStack"></div>
+<div class="mob-overlay" id="mobOverlay"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
