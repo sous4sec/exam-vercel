@@ -1,257 +1,240 @@
-(function () {
+(function() {
   'use strict';
 
-  /* ── refs ─────────────────────────────────────── */
-  const sidebar     = document.getElementById('sidebar');
-  const mobOverlay  = document.getElementById('mobOverlay');
-  const mobToggle   = document.getElementById('mobToggle');
-  const toastStack  = document.getElementById('toastStack');
-  const crumb       = document.getElementById('crumbCurrent');
+  // DOM elements
+  const dropzone = document.getElementById('dropzone');
+  const dzDefault = document.getElementById('dzDefault');
+  const dzSuccess = document.getElementById('dzSuccess');
+  const dzFileName = document.getElementById('dzFileName');
+  const fileInput = document.getElementById('fileInput');
+  const btnGerar = document.getElementById('btnGerar');
+  const btnLimpar = document.getElementById('btnLimpar');
+  const progressCard = document.getElementById('progressCard');
+  const progressFill = document.getElementById('progressFill');
+  const progressLabel = document.getElementById('progressLabel');
+  const resultCard = document.getElementById('resultCard');
+  const resultStats = document.getElementById('resultStats');
+  const resultBody = document.getElementById('resultBody');
+  const btnDownload = document.getElementById('btnDownload');
+  const btnReset = document.getElementById('btnReset');
+  const toastStack = document.getElementById('toastStack');
 
-  const dropzone    = document.getElementById('dropzone');
-  const dzDefault   = document.getElementById('dzDefault');
-  const dzSuccess   = document.getElementById('dzSuccess');
-  const dzFileName  = document.getElementById('dzFileName');
-  const fileInput   = document.getElementById('fileInput');
-  const btnGerar    = document.getElementById('btnGerar');
-  const btnLimpar   = document.getElementById('btnLimpar');
-  const actionRow   = document.getElementById('actionRow');
-  const previewArea = document.getElementById('previewArea');
-  const previewData = document.getElementById('previewData');
-  const prevNome    = document.getElementById('prevNome');
+  // checklist
+  const checkFormat = document.getElementById('checkFormat');
+  const checkUpload = document.getElementById('checkUpload');
+  const checkReady = document.getElementById('checkReady');
 
-  const panelProgress   = document.getElementById('panelProgress');
-  const panelResult     = document.getElementById('panelResult');
-  const progressLabel   = document.getElementById('progressLabel');
-  const progFill        = document.getElementById('progFill');
-  const resultMeta      = document.getElementById('resultMeta');
-  const resultBody      = document.getElementById('resultBody');
-  const btnDownloadResult = document.getElementById('btnDownloadResult');
-  const btnNovaDistribuicao = document.getElementById('btnNovaDistribuicao');
+  // navigation
+  const navBtns = document.querySelectorAll('.nav-btn');
+  const pages = document.querySelectorAll('.page');
 
-  const checks = {
-    1: document.getElementById('check1'),
-    2: document.getElementById('check2'),
-    3: document.getElementById('check3'),
-  };
+  // state
+  let uploadedFile = null;
+  let currentResult = null; // { b64, filename, data }
 
-  const PAGE_NAMES = { inicio: 'Início', modelo: 'Modelo', organizar: 'Organizar' };
-  let uploaded = false;
-  let resultB64 = null;
-  let resultFilename = 'resultado.xlsx';
-
-  /* ── navigation ───────────────────────────────── */
-  function navigate(id) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.sb-link').forEach(l => l.classList.remove('active'));
-    const page = document.getElementById('page-' + id);
-    const link = document.querySelector('.sb-link[data-page="' + id + '"]');
-    if (page) page.classList.add('active');
-    if (link) link.classList.add('active');
-    if (crumb) crumb.textContent = PAGE_NAMES[id] || id;
-    closeSidebar();
+  // ==================== NAVEGAÇÃO ====================
+  function navigate(pageId) {
+    pages.forEach(page => page.classList.remove('active'));
+    document.getElementById(`page-${pageId}`).classList.add('active');
+    navBtns.forEach(btn => {
+      if (btn.dataset.page === pageId) btn.classList.add('active');
+      else btn.classList.remove('active');
+    });
   }
 
-  document.querySelectorAll('.sb-link').forEach(l => {
-    l.addEventListener('click', e => { e.preventDefault(); navigate(l.dataset.page); });
+  navBtns.forEach(btn => {
+    btn.addEventListener('click', () => navigate(btn.dataset.page));
   });
 
-  document.querySelectorAll('[data-goto]').forEach(el => {
-    el.addEventListener('click', () => navigate(el.dataset.goto));
-  });
-
-  /* ── mobile sidebar ───────────────────────────── */
-  function openSidebar()  { sidebar.classList.add('open'); mobOverlay.classList.add('show'); }
-  function closeSidebar() { sidebar.classList.remove('open'); mobOverlay.classList.remove('show'); }
-  if (mobToggle)  mobToggle.addEventListener('click', openSidebar);
-  if (mobOverlay) mobOverlay.addEventListener('click', closeSidebar);
-
-  /* ── toasts ───────────────────────────────────── */
-  function toast(msg, type) {
-    type = type || 's';
-    const icons = { s: 'fa-circle-check', i: 'fa-circle-info', e: 'fa-circle-exclamation' };
-    const el = document.createElement('div');
-    el.className = 'toast toast-' + type;
-    el.innerHTML = `<i class="fa-solid ${icons[type] || icons.i} ti"></i><span>${msg}</span>`;
-    toastStack.appendChild(el);
-    setTimeout(() => {
-      el.classList.add('out');
-      el.addEventListener('animationend', () => el.remove(), { once: true });
-    }, 3600);
+  // ==================== TOAST ====================
+  function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    const icon = type === 'success' ? 'fa-regular fa-circle-check' : (type === 'error' ? 'fa-regular fa-circle-exclamation' : 'fa-regular fa-circle-info');
+    toast.innerHTML = `<i class="${icon} ti"></i><span>${message}</span>`;
+    toastStack.appendChild(toast);
+    setTimeout(() => toast.remove(), 3500);
   }
 
-  /* ── progress ─────────────────────────────────── */
-  function setProgress(pct, label) {
-    progFill.style.width = pct + '%';
-    if (label && progressLabel) progressLabel.textContent = label;
+  // ==================== CHECKLIST ====================
+  function updateChecklist() {
+    const hasFile = !!uploadedFile;
+    checkFormat.classList.toggle('done', hasFile);
+    checkUpload.classList.toggle('done', hasFile);
+    checkReady.classList.toggle('done', hasFile && btnGerar && !btnGerar.disabled);
+    if (hasFile) checkReady.classList.add('done');
+    else checkReady.classList.remove('done');
   }
 
-  /* ── upload ───────────────────────────────────── */
-  function applyUpload(file) {
+  // ==================== UPLOAD ====================
+  function handleFile(file) {
+    if (!file) return;
+    const ext = file.name.split('.').pop().toLowerCase();
+    if (ext !== 'xlsx' && ext !== 'xls') {
+      showToast('formato inválido. use .xlsx ou .xls', 'error');
+      return;
+    }
+    uploadedFile = file;
     dzDefault.style.display = 'none';
     dzSuccess.style.display = 'flex';
-    dzFileName.textContent  = file.name;
-    dropzone.classList.remove('dz-drag');
-    uploaded = true;
-    btnGerar.disabled  = false;
+    dzFileName.textContent = file.name;
+    btnGerar.disabled = false;
     btnLimpar.disabled = false;
-    if (prevNome) prevNome.textContent = file.name;
-    animateChecks();
-    setTimeout(() => {
-      if (previewArea) previewArea.style.display = 'none';
-      if (previewData) previewData.style.display = 'flex';
-    }, 500);
+    updateChecklist();
+    showToast(`arquivo "${file.name}" carregado`, 'success');
   }
 
   function clearUpload() {
+    uploadedFile = null;
+    currentResult = null;
     dzDefault.style.display = 'flex';
     dzSuccess.style.display = 'none';
-    dzFileName.textContent  = '';
-    uploaded = false;
-    resultB64 = null;
-    btnGerar.disabled  = true;
+    dzFileName.textContent = '';
+    btnGerar.disabled = true;
     btnLimpar.disabled = true;
-    resetChecks();
-    if (previewArea) previewArea.style.display = 'flex';
-    if (previewData) previewData.style.display = 'none';
-    if (panelProgress) panelProgress.style.display = 'none';
-    if (panelResult)   panelResult.style.display   = 'none';
-    if (actionRow)     actionRow.style.display      = 'flex';
+    progressCard.style.display = 'none';
+    resultCard.style.display = 'none';
     fileInput.value = '';
-    toast('Upload removido', 'i');
+    updateChecklist();
+    showToast('upload removido', 'info');
   }
 
-  function animateChecks() {
-    [1, 2, 3].forEach((k, i) => {
-      setTimeout(() => { if (checks[k]) checks[k].classList.add('done'); }, 120 * i);
-    });
-  }
-
-  function resetChecks() {
-    [1, 2, 3].forEach(k => { if (checks[k]) checks[k].classList.remove('done'); });
-  }
-
-  if (dropzone) {
-    dropzone.addEventListener('click', () => { if (!uploaded) fileInput.click(); });
-    dropzone.addEventListener('dragenter', e => { e.preventDefault(); dropzone.classList.add('dz-drag'); });
-    dropzone.addEventListener('dragover',  e => { e.preventDefault(); dropzone.classList.add('dz-drag'); });
-    dropzone.addEventListener('dragleave', e => {
-      if (!dropzone.contains(e.relatedTarget)) dropzone.classList.remove('dz-drag');
-    });
-    dropzone.addEventListener('drop', e => {
-      e.preventDefault();
-      dropzone.classList.remove('dz-drag');
-      const f = e.dataTransfer.files;
-      if (f && f.length) applyUpload(f[0]);
-    });
-  }
-
-  if (fileInput) {
-    fileInput.addEventListener('change', () => {
-      if (fileInput.files && fileInput.files.length) applyUpload(fileInput.files[0]);
-    });
-  }
-
-  if (btnLimpar) btnLimpar.addEventListener('click', clearUpload);
-
-  /* ── gerar ────────────────────────────────────── */
-  if (btnGerar) {
-    btnGerar.addEventListener('click', async () => {
-      if (!uploaded || !fileInput.files[0]) return;
-
-      // UI: esconde botões, mostra progresso
-      actionRow.style.display    = 'none';
-      panelProgress.style.display = 'block';
-      panelResult.style.display   = 'none';
-      setProgress(10, 'Enviando arquivo…');
-
-      const form = new FormData();
-      form.append('arquivo', fileInput.files[0]);
-
-      try {
-        setProgress(35, 'Processando distribuição…');
-        const resp = await fetch('/api/processar', { method: 'POST', body: form });
-        setProgress(75, 'Gerando Excel…');
-
-        const data = await resp.json();
-
-        if (data.erro) {
-          panelProgress.style.display = 'none';
-          actionRow.style.display     = 'flex';
-          toast(data.erro, 'e');
-          return;
-        }
-
-        setProgress(100, 'Concluído!');
-        setTimeout(() => {
-          panelProgress.style.display = 'none';
-          mostrarResultado(data);
-        }, 500);
-
-      } catch (err) {
-        panelProgress.style.display = 'none';
-        actionRow.style.display     = 'flex';
-        toast('Erro de comunicação: ' + err.message, 'e');
-      }
-    });
-  }
-
-  function mostrarResultado(data) {
-    resultB64 = data.arquivo_b64;
-    resultFilename = data.filename;
-
-    resultMeta.innerHTML =
-      `<strong>${data.total_alunos}</strong> alunos distribuídos em ` +
-      `<strong>${data.resumo.length}</strong> salas com sucesso.`;
-
-    resultBody.innerHTML = '';
-    data.resumo.forEach(r => {
-      resultBody.innerHTML +=
-        `<tr>
-          <td>Sala ${r.sala}</td>
-          <td><span class="badge-ano ba1">${r.ano1}</span></td>
-          <td><span class="badge-ano ba2">${r.ano2}</span></td>
-          <td><span class="badge-ano ba3">${r.ano3}</span></td>
-          <td><span class="badge-ano bat">${r.total}</span></td>
-        </tr>`;
-    });
-
-    panelResult.style.display = 'block';
-    panelResult.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    toast('Excel gerado com sucesso!', 's');
-  }
-
-  /* ── download resultado ───────────────────────── */
-  if (btnDownloadResult) {
-    btnDownloadResult.addEventListener('click', () => {
-      if (!resultB64) return;
-      const bytes = Uint8Array.from(atob(resultB64), c => c.charCodeAt(0));
-      const blob  = new Blob([bytes], {
-        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-      });
-      const url = URL.createObjectURL(blob);
-      const a   = document.createElement('a');
-      a.href = url; a.download = resultFilename; a.click();
-      URL.revokeObjectURL(url);
-      toast('Download iniciado', 'i');
-    });
-  }
-
-  /* ── nova distribuição ────────────────────────── */
-  if (btnNovaDistribuicao) {
-    btnNovaDistribuicao.addEventListener('click', () => {
-      panelResult.style.display = 'none';
-      clearUpload();
-    });
-  }
-
-  /* ── hover lift (touch-safe) ──────────────────── */
-  document.querySelectorAll('.feat-card, .step-item, .hero-stat').forEach(el => {
-    el.addEventListener('mouseenter', () => { el.style.willChange = 'transform'; });
-    el.addEventListener('mouseleave', () => { el.style.willChange = ''; });
+  dropzone.addEventListener('click', () => {
+    if (!uploadedFile) fileInput.click();
+  });
+  fileInput.addEventListener('change', (e) => {
+    if (e.target.files.length) handleFile(e.target.files[0]);
   });
 
-  /* ── init ─────────────────────────────────────── */
-  navigate('inicio');
+  // drag & drop
+  dropzone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropzone.classList.add('dz-drag');
+  });
+  dropzone.addEventListener('dragleave', () => {
+    dropzone.classList.remove('dz-drag');
+  });
+  dropzone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropzone.classList.remove('dz-drag');
+    const file = e.dataTransfer.files[0];
+    if (file) handleFile(file);
+  });
 
-}());
+  btnLimpar.addEventListener('click', clearUpload);
+
+  // ==================== PROCESSAMENTO (API) ====================
+  function setProgress(percent, label) {
+    progressFill.style.width = `${percent}%`;
+    if (label) progressLabel.textContent = label;
+  }
+
+  btnGerar.addEventListener('click', async () => {
+    if (!uploadedFile) return;
+
+    // show progress
+    progressCard.style.display = 'block';
+    resultCard.style.display = 'none';
+    setProgress(10, 'enviando arquivo...');
+
+    const formData = new FormData();
+    formData.append('arquivo', uploadedFile);
+
+    try {
+      setProgress(30, 'processando distribuição...');
+      const response = await fetch('/api/processar', {
+        method: 'POST',
+        body: formData
+      });
+
+      setProgress(80, 'gerando relatório...');
+      const data = await response.json();
+
+      if (data.erro) {
+        throw new Error(data.erro);
+      }
+
+      setProgress(100, 'concluído!');
+      setTimeout(() => {
+        progressCard.style.display = 'none';
+        showResult(data);
+      }, 400);
+
+    } catch (err) {
+      progressCard.style.display = 'none';
+      showToast(err.message || 'erro ao processar', 'error');
+    }
+  });
+
+  function showResult(data) {
+    currentResult = {
+      b64: data.arquivo_b64,
+      filename: data.filename,
+      resumo: data.resumo,
+      total_alunos: data.total_alunos
+    };
+
+    resultStats.innerHTML = `<strong>${data.total_alunos}</strong> alunos · <strong>${data.resumo.length}</strong> salas ocupadas`;
+    resultBody.innerHTML = '';
+    data.resumo.forEach(row => {
+      resultBody.innerHTML += `
+        <tr>
+          <td>Sala ${row.sala}</td>
+          <td>${row.ano1 || 0}</td>
+          <td>${row.ano2 || 0}</td>
+          <td>${row.ano3 || 0}</td>
+          <td><strong>${row.total}</strong></td>
+        </tr>
+      `;
+    });
+    resultCard.style.display = 'block';
+    resultCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  // ==================== DOWNLOAD RESULTADO ====================
+  btnDownload.addEventListener('click', () => {
+    if (!currentResult || !currentResult.b64) return;
+    const binary = atob(currentResult.b64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    const blob = new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = currentResult.filename || 'distribuicao_salas.xlsx';
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('download iniciado', 'success');
+  });
+
+  btnReset.addEventListener('click', () => {
+    clearUpload();
+    resultCard.style.display = 'none';
+  });
+
+  // ==================== DOWNLOAD MODELO ====================
+  async function downloadTemplate() {
+    try {
+      const response = await fetch('/api/template');
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'modelo_alunos.xlsx';
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('modelo baixado', 'success');
+    } catch (err) {
+      showToast('erro ao baixar modelo', 'error');
+    }
+  }
+
+  const modelBtns = document.querySelectorAll('#btnDownloadModelo, #btnDownloadModelo2');
+  modelBtns.forEach(btn => {
+    btn.addEventListener('click', downloadTemplate);
+  });
+
+  // inicialização
+  navigate('organizar');
+  updateChecklist();
+})();
