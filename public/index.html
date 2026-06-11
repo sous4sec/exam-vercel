@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Exam Randomizer</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #0f1117;
+      --surface: #1a1d27;
+      --border:  #2d3048;
+      --accent:  #6c63ff;
+      --green:   #48cfad;
+      --danger:  #ff6b6b;
+      --text:    #e2e8f0;
+      --muted:   #8892a4;
+      --r:       12px;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 16px 80px;
+    }
+
+    header { text-align: center; margin-bottom: 44px; }
+    .logo {
+      font-size: 2.4rem; font-weight: 800; letter-spacing: -1px;
+      background: linear-gradient(135deg, var(--accent), var(--green));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    header p { color: var(--muted); margin-top: 8px; font-size: .95rem; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 28px 32px;
+      width: 100%; max-width: 640px;
+      margin-bottom: 20px;
+    }
+
+    .card h2 {
+      font-size: .85rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .08em; color: var(--muted);
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 18px;
+    }
+    .step {
+      background: var(--accent); color: #fff;
+      width: 22px; height: 22px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: .72rem; font-weight: 800; flex-shrink: 0;
+    }
+
+    .desc { color: var(--muted); font-size: .9rem; margin-bottom: 16px; line-height: 1.5; }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 11px 22px; border: none; border-radius: 8px;
+      font-size: .9rem; font-weight: 600; cursor: pointer;
+      transition: opacity .15s, transform .1s; text-decoration: none;
+    }
+    .btn:hover  { opacity: .85; transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-success { background: var(--green);  color: #0f1117; }
+    .btn-outline {
+      background: transparent;
+      border: 1.5px solid var(--border); color: var(--text);
+    }
+    .btn:disabled { opacity: .35; cursor: not-allowed; transform: none !important; }
+
+    /* Drop zone */
+    .dropzone {
+      border: 2px dashed var(--border); border-radius: var(--r);
+      padding: 36px; text-align: center; cursor: pointer;
+      position: relative; transition: border-color .2s, background .2s;
+    }
+    .dropzone:hover, .dropzone.hover {
+      border-color: var(--accent); background: rgba(108,99,255,.06);
+    }
+    .dropzone input[type=file] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+    .dropzone .dz-icon  { font-size: 2.2rem; margin-bottom: 10px; }
+    .dropzone .dz-label { font-size: .92rem; color: var(--muted); }
+    .dropzone .dz-label strong { color: var(--accent); }
+    .dropzone .dz-name  { margin-top: 10px; font-size: .9rem; color: var(--green); font-weight: 600; }
+
+    /* Progress */
+    .prog { display: none; margin-top: 16px; }
+    .prog.show { display: block; }
+    .prog-bg {
+      background: var(--border); border-radius: 99px; height: 6px; overflow: hidden;
+    }
+    .prog-fill {
+      height: 100%; border-radius: 99px;
+      background: linear-gradient(90deg, var(--accent), var(--green));
+      width: 0%; transition: width .4s ease;
+    }
+    .prog-lbl { font-size: .82rem; color: var(--muted); margin-top: 6px; }
+
+    /* Alert */
+    .alert { display: none; border-radius: 8px; padding: 12px 16px; font-size: .88rem; margin-top: 14px; }
+    .alert.show { display: block; }
+    .alert-err  { background: rgba(255,107,107,.12); border: 1px solid rgba(255,107,107,.3); color: #ff9f9f; }
+    .alert-ok   { background: rgba(72,207,173,.10);  border: 1px solid rgba(72,207,173,.3);  color: var(--green); }
+
+    /* Result */
+    #resultCard { display: none; }
+    .result-meta { font-size: .88rem; color: var(--muted); margin-bottom: 14px; }
+    .result-meta strong { color: var(--text); }
+    .result-title { font-size: 1.05rem; color: var(--green); margin-bottom: 14px; }
+
+    table { width: 100%; border-collapse: collapse; font-size: .875rem; }
+    th {
+      text-align: left; padding: 8px 10px;
+      color: var(--muted); font-weight: 600; font-size: .76rem;
+      text-transform: uppercase; letter-spacing: .05em;
+      border-bottom: 1px solid var(--border);
+    }
+    td { padding: 9px 10px; border-bottom: 1px solid rgba(45,48,72,.5); }
+    tr:last-child td { border-bottom: none; }
+    td:first-child { font-weight: 700; color: var(--accent); }
+
+    .badge {
+      display: inline-block; padding: 2px 9px;
+      border-radius: 99px; font-size: .76rem; font-weight: 700;
+    }
+    .b1 { background: rgba(108,99,255,.18); color: #a29bfe; }
+    .b2 { background: rgba(255,159,67,.18);  color: #ffa742; }
+    .b3 { background: rgba(72,207,173,.18);  color: #48cfad; }
+    .bt { background: rgba(226,232,240,.08); color: var(--text); }
+
+    .row { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+
+    footer {
+      margin-top: 40px; color: var(--muted);
+      font-size: .76rem; text-align: center; opacity: .6;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">📋 Exam Randomizer</div>
+  <p>Distribuição automática de alunos por sala de prova</p>
+</header>
+
+<!-- STEP 1 -->
+<div class="card">
+  <h2><span class="step">1</span> Baixar template de alunos</h2>
+  <p class="desc">
+    Baixe o arquivo base, preencha com os dados dos alunos
+    (colunas <strong>NOME</strong>, <strong>RA</strong>, <strong>TURMA</strong>, <strong>ANO</strong>) e salve.
+  </p>
+  <a href="/api/template" class="btn btn-outline" download="alunos_template.xlsx">
+    ⬇ Baixar alunos_template.xlsx
+  </a>
+</div>
+
+<!-- STEP 2 -->
+<div class="card">
+  <h2><span class="step">2</span> Enviar lista de alunos</h2>
+
+  <div class="dropzone" id="dropzone">
+    <input type="file" id="fileInput" accept=".xlsx,.xls" />
+    <div class="dz-icon">📂</div>
+    <div class="dz-label"><strong>Clique aqui</strong> ou arraste o arquivo Excel</div>
+    <div class="dz-name" id="fname"></div>
+  </div>
+
+  <div class="prog" id="prog">
+    <div class="prog-bg"><div class="prog-fill" id="progFill"></div></div>
+    <div class="prog-lbl" id="progLbl">Processando…</div>
+  </div>
+
+  <div class="alert alert-err" id="alertErr"></div>
+
+  <div class="row">
+    <button class="btn btn-primary" id="btnProc" disabled onclick="processar()">
+      ⚡ Processar e gerar Excel
+    </button>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div class="card" id="resultCard">
+  <div class="result-title">✅ Resultado gerado com sucesso!</div>
+  <div class="result-meta" id="resMeta"></div>
+  <table>
+    <thead>
+      <tr><th>Sala</th><th>1º Ano</th><th>2º Ano</th><th>3º Ano</th><th>Total</th></tr>
+    </thead>
+    <tbody id="resBody"></tbody>
+  </table>
+  <div class="row">
+    <button class="btn btn-success" id="btnDl" onclick="baixar()">⬇ Baixar resultado.xlsx</button>
+    <button class="btn btn-outline" onclick="resetar()">↺ Processar novamente</button>
+  </div>
+</div>
+
+<footer>Exam Randomizer — powered by Vercel</footer>
+
+<script>
+  let resultB64 = null;
+  let resultFilename = "resultado.xlsx";
+
+  const fileInput  = document.getElementById("fileInput");
+  const fname      = document.getElementById("fname");
+  const btnProc    = document.getElementById("btnProc");
+  const prog       = document.getElementById("prog");
+  const progFill   = document.getElementById("progFill");
+  const progLbl    = document.getElementById("progLbl");
+  const alertErr   = document.getElementById("alertErr");
+  const resultCard = document.getElementById("resultCard");
+  const resMeta    = document.getElementById("resMeta");
+  const resBody    = document.getElementById("resBody");
+  const dropzone   = document.getElementById("dropzone");
+
+  dropzone.addEventListener("dragover",  e => { e.preventDefault(); dropzone.classList.add("hover"); });
+  dropzone.addEventListener("dragleave", () => dropzone.classList.remove("hover"));
+  dropzone.addEventListener("drop",      e => {
+    e.preventDefault();
+    dropzone.classList.remove("hover");
+    if (e.dataTransfer.files[0]) setFile(e.dataTransfer.files[0]);
+  });
+
+  fileInput.addEventListener("change", () => {
+    if (fileInput.files[0]) setFile(fileInput.files[0]);
+  });
+
+  function setFile(f) {
+    fname.textContent = "📄 " + f.name;
+    btnProc.disabled = false;
+    hideErr();
+  }
+
+  function setProgress(pct, lbl) {
+    progFill.style.width = pct + "%";
+    progLbl.textContent = lbl;
+  }
+
+  function showErr(msg) {
+    alertErr.textContent = "❌ " + msg;
+    alertErr.classList.add("show");
+  }
+  function hideErr() { alertErr.classList.remove("show"); }
+
+  async function processar() {
+    hideErr();
+    const f = fileInput.files[0];
+    if (!f) { showErr("Selecione um arquivo primeiro."); return; }
+
+    btnProc.disabled = true;
+    resultCard.style.display = "none";
+    prog.classList.add("show");
+    setProgress(15, "Enviando arquivo…");
+
+    const form = new FormData();
+    form.append("arquivo", f);
+
+    try {
+      setProgress(40, "Processando distribuição…");
+      const resp = await fetch("/api/processar", { method: "POST", body: form });
+      setProgress(80, "Gerando Excel…");
+
+      const data = await resp.json();
+
+      if (data.erro) {
+        showErr(data.erro);
+        prog.classList.remove("show");
+        btnProc.disabled = false;
+        return;
+      }
+
+      setProgress(100, "Concluído!");
+      setTimeout(() => prog.classList.remove("show"), 700);
+
+      resultB64 = data.arquivo_b64;
+      resultFilename = data.filename;
+
+      resMeta.innerHTML =
+        `<strong>${data.total_alunos}</strong> alunos distribuídos em ` +
+        `<strong>${data.resumo.length}</strong> salas.`;
+
+      resBody.innerHTML = "";
+      data.resumo.forEach(r => {
+        resBody.innerHTML +=
+          `<tr>
+            <td>Sala ${r.sala}</td>
+            <td><span class="badge b1">${r.ano1}</span></td>
+            <td><span class="badge b2">${r.ano2}</span></td>
+            <td><span class="badge b3">${r.ano3}</span></td>
+            <td><span class="badge bt">${r.total}</span></td>
+          </tr>`;
+      });
+
+      resultCard.style.display = "block";
+      resultCard.scrollIntoView({ behavior: "smooth" });
+
+    } catch (err) {
+      showErr("Erro de comunicação: " + err.message);
+      prog.classList.remove("show");
+      btnProc.disabled = false;
+    }
+  }
+
+  function baixar() {
+    if (!resultB64) return;
+    const bytes = Uint8Array.from(atob(resultB64), c => c.charCodeAt(0));
+    const blob = new Blob([bytes], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = resultFilename; a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function resetar() {
+    fileInput.value = ""; fname.textContent = "";
+    btnProc.disabled = true; resultCard.style.display = "none";
+    resultB64 = null; hideErr();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+</script>
+
+</body>
+</html>
