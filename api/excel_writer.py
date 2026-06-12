@@ -130,13 +130,15 @@ def preencher_mapa(ws, sala_cfg, alunos):
 
 
 def preencher_lista_lateral(ws, sala_cfg, alunos):
-    """Função original - preenche lista lateral por série"""
+    """Função original - preenche lista lateral por série (em ordem alfabética)"""
     listas = sala_cfg["lista"]
 
     for ano in ["1", "2", "3"]:
         linha_inicio = listas[ano]["inicio"]
 
-        for indice, aluno in enumerate(alunos[ano]):
+        alunos_ordenados = sorted(alunos[ano], key=lambda a: a.nome.strip().lower())
+
+        for indice, aluno in enumerate(alunos_ordenados):
             linha = linha_inicio + indice
             _safe_set(ws, "B", linha, aluno.nome)
 
