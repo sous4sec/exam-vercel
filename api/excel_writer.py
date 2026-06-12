@@ -107,17 +107,19 @@ def preencher_mapa(ws, sala_cfg, alunos):
 
 def preencher_lista_lateral(ws, sala_cfg, alunos):
     """
-    Preenche a lista lateral (coluna B) na ORDEM DA DISTRIBUIÇÃO — ou seja,
-    a ordem em que os alunos foram sorteados para a sala. Isso garante que
-    cada combinação/aba tenha uma lista diferente e coerente com o mapa visual.
+    Preenche a lista lateral (coluna B = nome, coluna C = turma)
+    na ORDEM DA DISTRIBUIÇÃO aleatória.
+    A turma (coluna C) é sobrescrita com a turma real do aluno sorteado,
+    garantindo que cada combinação mostre turmas diferentes.
     """
     listas = sala_cfg["lista"]
 
     for ano in ["1", "2", "3"]:
         linha_inicio = listas[ano]["inicio"]
-        # SEM sorted() — mantém a ordem aleatória da distribuição
         for indice, aluno in enumerate(alunos[ano]):
-            _safe_set(ws, "B", linha_inicio + indice, aluno.nome)
+            linha = linha_inicio + indice
+            _safe_set(ws, "B", linha, aluno.nome)
+            _safe_set(ws, "C", linha, aluno.turma)  # sobrescreve turma hardcoded do template
 
 
 # ---------------------------------------------------------------------------
