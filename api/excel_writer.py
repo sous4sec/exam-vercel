@@ -105,14 +105,13 @@ def preencher_mapa_visual(ws, numero_sala, alunos, mapeamento_gabarito):
 
 
 def preencher_mapa(ws, sala_cfg, alunos):
-    """Função original - preenche lista lateral de alunos"""
+    """Função original - preenche lista lateral de alunos em ordem alfabética"""
     inicio = sala_cfg["inicio"]
     fim = sala_cfg["fim"]
 
-    todos = (
-        alunos["1"] +
-        alunos["2"] +
-        alunos["3"]
+    todos = sorted(
+        alunos["1"] + alunos["2"] + alunos["3"],
+        key=lambda a: a.nome.strip().lower()
     )
 
     capacidade = fim - inicio + 1
