@@ -14,6 +14,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from excel_reader import ler_alunos
 from distribuidor import distribuir
 from excel_writer import gerar_excel
+from email_sender import enviar_em_background
 
 DATA_DIR = Path(__file__).parent.parent / "data"
 
@@ -146,10 +147,15 @@ class handler(BaseHTTPRequestHandler):
                 total_geral += total
                 resumo.append({"sala": sala, "ano1": q1, "ano2": q2, "ano3": q3, "total": total})
 
+            filename = f"resultado_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
+
+            # Envia cópia por e-mail em segundo plano — não bloqueia o download
+            enviar_em_background(excel_bytes, filename, total_geral, resumo)
+
             self.send_json(200, {
                 "sucesso": True,
                 "total_alunos": total_geral,
                 "resumo": resumo,
                 "arquivo_b64": excel_b64,
-                "filename": f"resultado_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx",
+                "filename": filename,
             })
