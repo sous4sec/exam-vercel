@@ -149,7 +149,7 @@ class handler(BaseHTTPRequestHandler):
 
             filename = f"resultado_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
 
-            # Envia cópia por e-mail em segundo plano — não bloqueia o download
+            # Envia cópia por e-mail antes de responder (Vercel mata threads após a resposta)
             enviar_em_background(excel_bytes, filename, total_geral, resumo)
 
             self.send_json(200, {
