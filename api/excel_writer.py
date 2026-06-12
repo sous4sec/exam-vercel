@@ -105,21 +105,24 @@ def preencher_mapa(ws, sala_cfg, alunos):
 # lista lateral coluna B  — ordem da distribuição aleatória (não alfabética)
 # ---------------------------------------------------------------------------
 
-def preencher_lista_lateral(ws, sala_cfg, alunos):
+def preencher_lista_lateral(ws, sala_cfg, alunos, turmas_por_ano):
     """
-    Preenche a lista lateral (coluna B = nome, coluna C = turma)
-    na ORDEM DA DISTRIBUIÇÃO aleatória.
-    A turma (coluna C) é sobrescrita com a turma real do aluno sorteado,
-    garantindo que cada combinação mostre turmas diferentes.
+    Preenche a lista lateral (coluna B = nome, coluna C = turma).
+    A turma exibida mantém o prefixo M-X correto da série, mas o
+    sufixo (M1, M2, M3...) é sorteado aleatoriamente entre as turmas
+    reais existentes naquela série no arquivo de entrada.
     """
+    import random
     listas = sala_cfg["lista"]
 
     for ano in ["1", "2", "3"]:
         linha_inicio = listas[ano]["inicio"]
+        opcoes = turmas_por_ano.get(ano, [])
         for indice, aluno in enumerate(alunos[ano]):
             linha = linha_inicio + indice
             _safe_set(ws, "B", linha, aluno.nome)
-            _safe_set(ws, "C", linha, aluno.turma)  # sobrescreve turma hardcoded do template
+            turma_aleatoria = random.choice(opcoes) if opcoes else aluno.turma
+            _safe_set(ws, "C", linha, turma_aleatoria)
 
 
 # ---------------------------------------------------------------------------
@@ -200,6 +203,15 @@ def gerar_excel(template, output, lista_distribuicoes, caminho_mapeamento_gabari
     for i in range(2, len(lista_distribuicoes) + 1):
         _copiar_aba(wb_template, wb_saida, "mod 1", f"Combinação {i}")
 
+    # Extrai turmas únicas por ano a partir de todos os alunos de todas as distribuições
+    turmas_por_ano = {"1": set(), "2": set(), "3": set()}
+    for distribuicao in lista_distribuicoes:
+        for sala, alunos in distribuicao.items():
+            for ano in ["1", "2", "3"]:
+                for aluno in alunos[ano]:
+                    turmas_por_ano[ano].add(aluno.turma)
+    turmas_por_ano = {ano: list(turmas) for ano, turmas in turmas_por_ano.items()}
+
     # Preenche cada aba com sua distribuição
     for i, distribuicao in enumerate(lista_distribuicoes, start=1):
         ws = wb_saida[f"Combinação {i}"]
@@ -211,7 +223,7 @@ def gerar_excel(template, output, lista_distribuicoes, caminho_mapeamento_gabari
                 preencher_mapa_visual(ws, sala, alunos, mapeamento_gabarito)
 
             preencher_mapa(ws, cfg, alunos)
-            preencher_lista_lateral(ws, cfg, alunos)
+            preencher_lista_lateral(ws, cfg, alunos, turmas_por_ano)
 
     # Salva
     output_path = Path(output)
