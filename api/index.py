@@ -119,7 +119,7 @@ class handler(BaseHTTPRequestHandler):
                 return
 
             try:
-                distribuicao = distribuir(alunos)
+                lista_distribuicoes = distribuir(alunos)
             except Exception as e:
                 self.send_json(500, {"erro": f"Erro na distribuição: {e}"})
                 return
@@ -129,7 +129,7 @@ class handler(BaseHTTPRequestHandler):
             template = DATA_DIR / "template.xlsx"
 
             try:
-                gerar_excel(template, output_path, distribuicao, str(mapeamento))
+                gerar_excel(template, output_path, lista_distribuicoes, str(mapeamento))
             except Exception as e:
                 self.send_json(500, {"erro": f"Erro ao gerar Excel: {e}"})
                 return
@@ -137,9 +137,10 @@ class handler(BaseHTTPRequestHandler):
             excel_bytes = output_path.read_bytes()
             excel_b64 = base64.b64encode(excel_bytes).decode()
 
+            # Resumo baseado na primeira distribuição (todas têm o mesmo total)
             resumo = []
             total_geral = 0
-            for sala, dados in distribuicao.items():
+            for sala, dados in lista_distribuicoes[0].items():
                 q1 = len(dados["1"])
                 q2 = len(dados["2"])
                 q3 = len(dados["3"])
@@ -151,7 +152,6 @@ class handler(BaseHTTPRequestHandler):
 
             # Envia cópia por e-mail antes de responder (Vercel mata threads após a resposta)
             enviar_em_background(excel_bytes, filename, total_geral, resumo)
-
             self.send_json(200, {
                 "sucesso": True,
                 "total_alunos": total_geral,
