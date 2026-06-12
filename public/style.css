@@ -26,7 +26,6 @@
   font-size: 0.75rem;
   color: #ff1000;
 }
-}
 
 .text-helper {
   font-size: 0.85rem;
@@ -46,7 +45,7 @@
   --border-strong: #30363d;
   --text-primary: #e6edf3;
   --text-secondary: #c9d1d9;
-  --text-muted: #adbac7;  /* ALTERADO - mais claro e legível */
+  --text-muted: #adbac7;
   --accent: #818cf8;
   --accent-light: #a78bfa;
   --accent-glow: rgba(129, 140, 248, 0.1);
@@ -59,11 +58,6 @@
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
   --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
-}
-
-/* VERSÃO AGRESSIVA - FORÇA TODOS OS TEXTOS NO DARK MODE */
-[data-theme="dark"] {
-  --text-muted: #c9d1d9 !important;
 }
 
 [data-theme="dark"] .text-muted,
@@ -81,10 +75,55 @@
 [data-theme="dark"] .info-note span,
 [data-theme="dark"] .hero-subtitle,
 [data-theme="dark"] .footer .text-muted,
-[data-theme="dark"] .result-summary,
-[data-theme="dark"] .table td,
-[data-theme="dark"] .table .text-muted {
+[data-theme="dark"] .result-summary {
   color: #c9d1d9 !important;
+}
+
+/* Dark mode - tabela resultado */
+[data-theme="dark"] .table {
+  --bs-table-bg: transparent;
+  --bs-table-color: #e6edf3;
+  --bs-table-border-color: #21262d;
+  --bs-table-hover-bg: rgba(129, 140, 248, 0.1);
+  --bs-table-hover-color: #e6edf3;
+  --bs-table-striped-bg: transparent;
+  --bs-table-striped-color: #e6edf3;
+  color: #e6edf3 !important;
+  border-color: #21262d !important;
+}
+
+[data-theme="dark"] .table th {
+  color: #adbac7 !important;
+  border-color: #21262d !important;
+  background-color: transparent !important;
+}
+
+[data-theme="dark"] .table td {
+  color: #c9d1d9 !important;
+  border-color: #21262d !important;
+  background-color: transparent !important;
+}
+
+[data-theme="dark"] .table td:first-child {
+  color: #a78bfa !important;
+}
+
+[data-theme="dark"] .table-hover tbody tr:hover td {
+  background-color: rgba(129, 140, 248, 0.1) !important;
+  color: #e6edf3 !important;
+}
+
+[data-theme="dark"] .table-responsive {
+  background: transparent;
+}
+
+[data-theme="dark"] #resultCard {
+  background: #161b22 !important;
+  border-color: #21262d !important;
+}
+
+[data-theme="dark"] #resultSummary {
+  color: #adbac7 !important;
 }
 
 * {
